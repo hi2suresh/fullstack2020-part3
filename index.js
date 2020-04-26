@@ -1,10 +1,26 @@
 const express = require('express');
+const morgan = require('morgan')
 const app = express();
+
  app.use(express.json())
-// app.get('/', (request, response) => {
-//     console.log("Hey")
-//     response.send("<h1>Hello</h1>")
-// })
+ //app.use(morgan('tiny'))
+
+
+app.use(morgan(function (tokens, req, res) {
+    let log = 
+    [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, 'content-length'), '-',
+      tokens['response-time'](req, res), 'ms ',      
+    ].join(' ')
+    
+    if(tokens.method(req,res) === 'POST') {
+        log += JSON.stringify(req.body)
+    }
+    return log;
+  }))
 
 let persons = [ { name: 'Arto Hellas', number: '040-123456', id:1 },
 { name: 'Ada Lovelace', number: '39-44-5323523', id:2 },
@@ -45,9 +61,9 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons', (request,response) => {
   const person = request.body;
-  console.log(person);
+//   console.log(person);
   const {name, number} = person;
-  console.log(name);
+//   console.log(name);
 
   if(!name) {
       return response.status(404).json({ 
@@ -56,7 +72,7 @@ app.post('/api/persons', (request,response) => {
   }
 
   const personAlreadyExists = persons.find(person => person.name.toLowerCase() === name.toLowerCase())
-  console.log(personAlreadyExists)
+//   console.log(personAlreadyExists)
   if(personAlreadyExists){
       return response.status(404).json({
           error: 'name must be unique'
