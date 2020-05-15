@@ -6,19 +6,16 @@
   "scripts": {
     "start": "node index.js",
     "test": "\"echo \\\"Error: no test specified\\\" && exit 1\"\"echo \\\"Error: no test specified\\\" && exit 1\"",
-    "dev": "nodemon index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hi2suresh/fullstack2020-part3.git"
+    "dev": "nodemon index.js",
+    "build:ui": "rm -rf build && cd ../persons-frontend && npm run build --prod && cp -r build ../persons-backend/",
+    "deploy": "git push heroku master",
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
+    "logs:prod": "heroku logs --tail"
   },
   "author": "Suresh Rao",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/hi2suresh/fullstack2020-part3/issues"
-  },
-  "homepage": "https://github.com/hi2suresh/fullstack2020-part3#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "morgan": "^1.10.0"
   },
