@@ -1,60 +1,57 @@
 require('dotenv').config()
-const express = require('express');
+const express = require('express')
 const morgan = require('morgan')
-const app = express();
+const app = express()
 const Person = require('./models/person')
-
- app.use(express.json())
- app.use(express.static('build'))
-
- //app.use(morgan('tiny'))
-
-
+app.use(express.json())
+app.use(express.static('build'))
+//app.use(morgan('tiny'))
 app.use(morgan(function (tokens, req, res) {
-    let log = 
+  let log =
     [
       tokens.method(req, res),
       tokens.url(req, res),
       tokens.status(req, res),
       tokens.res(req, res, 'content-length'), '-',
-      tokens['response-time'](req, res), 'ms ',      
+      tokens['response-time'](req, res), 'ms ',
     ].join(' ')
-    
-    if(tokens.method(req,res) === 'POST') {
-        log += JSON.stringify(req.body)
-    }
-    return log;
-  }))
+
+  if(tokens.method(req,res) === 'POST') {
+    log += JSON.stringify(req.body)
+  }
+  return log
+}))
 
 app.get('/api/persons', (request,response) => {
-Person.find({}).then(persons => {
- response.json(persons.map(person => person.toJSON()));
-})
+  Person.find({}).then(persons => {
+    response.json(persons.map(person => person.toJSON()))
+  })
 })
 
 app.get('/info', (request, response) => {
-    const infoResponse  = `
+  const infoResponse  = `
     <p>PhoneBook has info of ${Person.length} people </p>
-    <p>${new Date()} <\p>
+    <p>${new Date()} <p>
     `
-    response.send(infoResponse)
+  response.send(infoResponse)
 })
 
 app.get('/api/persons/:id', (request, response,next) => {
   Person.findById(request.params.id).then(person => {
     if(person){
-      response.json(person.toJSON());
+      response.json(person.toJSON())
     } else {
-      response.status(404).send({'error': 'Missing person'})
+      response.status(404).send({ 'error': 'Missing person' })
     }
   }).catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response,next) => {
-    Person.findByIdAndRemove(request.params.id).then(result => {
-      response.status(204).end()
-    }).catch(error => next(error))
-    })
+  Person.findByIdAndRemove(request.params.id).then(result => {
+    console.log(result)
+    response.status(204).end()
+  }).catch(error => next(error))
+})
 
 app.post('/api/persons', (request, response,next) => {
   const body = request.body
@@ -65,16 +62,16 @@ app.post('/api/persons', (request, response,next) => {
 
   const person = new Person({
     name: body.name,
-    number: body.number 
+    number: body.number
   })
 
   person.save().then(savedPerson => {
-    response.json(savedPerson.toJSON())   
+    response.json(savedPerson.toJSON())
   }).catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response,next) => {
-  const body = request.body;
+  const body = request.body
   const person = {
     number:body.number
   }
@@ -102,7 +99,7 @@ const errorHandler = (error, request, response, next) => {
 
   next(error)
 }
-app.use(errorHandler);
+app.use(errorHandler)
 
 
 const PORT = process.env.PORT || 3001
